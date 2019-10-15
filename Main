@@ -1,0 +1,15 @@
+%dataloading
+parameters=readmatrix('default_of_credit_card_clients.xls');
+labels=parameters(:,25);
+parameters=parameters(:,1:24);
+
+%exploratory data analysis
+fscmrmr(parameters,labels);
+
+%visualization
+
+%modeling different classifiers
+%using random forest
+treeRandomForest = TreeBagger(5,parameters,labels);
+treeeRandomForestResult=predict(treeRandomForest,parameters(1:5,:));
+
