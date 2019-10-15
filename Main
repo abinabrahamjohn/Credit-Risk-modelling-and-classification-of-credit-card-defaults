@@ -1,15 +1,24 @@
 %dataloading
-parameters=readmatrix('default_of_credit_card_clients.xls');
-labels=parameters(:,25);
-parameters=parameters(:,1:24);
+credit_default_data=readmatrix('default_of_credit_card_clients.xls');
+
+%splitting into parameters and labels
+credit_default_labels=credit_default_data(:,25);
+credit_default_parameters=credit_default_data(:,1:24);
 
 %exploratory data analysis
-fscmrmr(parameters,labels);
+fscmrmr(credit_default_parameters,credit_default_labels);
 
 %visualization
 
-%modeling different classifiers
-%using random forest
-treeRandomForest = TreeBagger(5,parameters,labels);
-treeeRandomForestResult=predict(treeRandomForest,parameters(1:5,:));
+%data cleaning
 
+%feature engineering
+%modeling different classifiers
+
+%using random forest
+treeRandomForest = TreeBagger(5,credit_default_parameters,credit_default_labels);
+treeeRandomForestResult=predict(treeRandomForest,credit_default_parameters(1:5,:))
+
+%using naive bayesian classifier
+naiveBayes = fitcnb(credit_default_parameters,credit_default_labels);
+naiveBayesResult=predict(naiveBayes,credit_default_parameters(1:5,:))
