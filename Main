@@ -1,24 +1,61 @@
-%dataloading
-credit_default_data=readmatrix('default_of_credit_card_clients.xls');
+%Clear workspace, command window and close figures
+ clear all;
+ clc;
+ close all;
 
-%splitting into parameters and labels
-credit_default_labels=credit_default_data(:,25);
-credit_default_parameters=credit_default_data(:,1:24);
+%Dataloading- Need to make it independent of location
+credit_default=readtable('default_of_credit_card_clients.xls');
+%removing header
+credit_default_data=credit_default(2:size(credit_default,1),:);
 
 %exploratory data analysis
-fscmrmr(credit_default_parameters,credit_default_labels);
+%scatter plot age-default
+%scatter(credit_default_data(:,6),credit_default_data(:,25))
+
+%correlation matrix
 
 %visualization
 
 %data cleaning
 
+%remove correlated columns
+
 %feature engineering
-%modeling different classifiers
+
+%Splitting data  into training and test data
+%Should be randomly picked
+%train: 80%, test: 20%
+cv = cvpartition(size(credit_default_data,1),'HoldOut',0.2);
+idx = cv.test;
+% Separate to training and test data
+train_credit_default_data = credit_default_data(~idx,:);
+test_credit_default_data  = credit_default_data(idx,:);
+
+
+%Data split into features and labels
+train_credit_default_labels=train_credit_default_data(:,25);
+train_credit_default_features=train_credit_default_data(:,1:24);
+
+test_credit_default_labels=test_credit_default_data(:,25);
+test_credit_default_features=test_credit_default_data(:,1:24);
+
+%Modeling different classifiers
 
 %using random forest
-treeRandomForest = TreeBagger(5,credit_default_parameters,credit_default_labels);
-treeeRandomForestResult=predict(treeRandomForest,credit_default_parameters(1:5,:))
+%Need to justify selected number
+treeRandomForest = TreeBagger(5,train_credit_default_features,train_credit_default_labels);
+treeRandomForestResult=predict(treeRandomForest,test_credit_default_features)
+%confusion matrix for random forest classifier
+confusionchart(table2cell(test_credit_default_labels),treeRandomForestResult)
+title('Confusion Matrix for Random Forest Classifier')
 
 %using naive bayesian classifier
-naiveBayes = fitcnb(credit_default_parameters,credit_default_labels);
-naiveBayesResult=predict(naiveBayes,credit_default_parameters(1:5,:))
+naiveBayes = fitcnb(train_credit_default_features,train_credit_default_labels);
+naiveBayesResult=predict(naiveBayes,test_credit_default_features)
+
+%confusion matrix for naive bayesian classifier
+figure(2)
+confusionchart(table2cell(test_credit_default_labels),naiveBayesResult)
+title('Confusion Matrix for Naive Bayesian Classifier')
+
+%measure performance
