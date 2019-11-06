@@ -16,8 +16,6 @@ for i = 1:length(catColumns)
     credit_default_data.(col) = categorical(credit_default_data{:, col});
 end
 
-
-
 %exploratory data analysis
 labels = {'0','1'};
 figure(1)
@@ -41,8 +39,6 @@ for col_index = 1:n-1
    histogram(credit_default_data{:, col_index})
    title(sprintf('Histogram of %s', credit_default_data.Properties.VariableNames{col_index}))
 end
-
-%scatterplot
 
 %correlation
  % Compute Correlation Matrix (Pearson coefficient)
@@ -90,12 +86,21 @@ test_credit_default_features=test_credit_default_data(:,1:23);
 
 %using random forest
 %Need to justify selected number
-treeRandomForest = TreeBagger(5,train_credit_default_features,train_credit_default_labels,'Prior',[0.78 0.22]);
+treeRandomForest = TreeBagger(100,train_credit_default_features,train_credit_default_labels,'Prior',[0.78 0.22]);
 treeRandomForestResult=predict(treeRandomForest,test_credit_default_features);
 [predRF, PosteriorRF]=predict(treeRandomForest,test_credit_default_features);
 %confusion matrix for random forest classifier
 figure(4)
 confusionchart(test_credit_default_labels.defaultPaymentNextMonth,categorical(treeRandomForestResult))
+confusion_matrix_RF=confusionmat(test_credit_default_labels.defaultPaymentNextMonth,categorical(treeRandomForestResult));
+[accuracyRF,precisionRF, recallRF, specificityRF,fscoreRF] = PerformanceMetrics(confusion_matrix_RF);
+fprintf('Performance Metrics for Random Forest\n')
+fprintf('Accuracy RF : %f\n',accuracyRF)
+fprintf('Precision RF : %f\n',precisionRF)
+fprintf('Recall RF : %f\n',recallRF)
+fprintf('Specificity RF : %f\n',specificityRF)
+fprintf('F1 score RF : %f\n',fscoreRF)
+
 title('Confusion Matrix for Random Forest Classifier')
 
 %using naive bayesian classifier
@@ -106,6 +111,14 @@ naiveBayesResult=predict(naiveBayes,test_credit_default_features);
 %confusion matrix for naive bayesian classifier
 figure(5)
 confusionchart(test_credit_default_labels.defaultPaymentNextMonth,categorical(naiveBayesResult))
+confusion_matrix_NB=confusionmat(test_credit_default_labels.defaultPaymentNextMonth,categorical(naiveBayesResult));
+[accuracyNB,precisionNB, recallNB, specificityNB,fscoreNB] = PerformanceMetrics(confusion_matrix_NB);
+fprintf('Performance Metrics for Naive Bayes\n')
+fprintf('Accuracy NB : %f\n',accuracyNB)
+fprintf('Precision NB : %f\n',precisionNB)
+fprintf('Recall NB : %f\n',recallNB)
+fprintf('Specifcity NB : %f\n',specificityNB)
+fprintf('F1 score NB : %f\n',fscoreNB)
 title('Confusion Matrix for Naive Bayesian Classifier')
 
 %measure performance
@@ -120,4 +133,7 @@ hold on
 title('ROC Curve Comparison : Naive Bayes vs Random Forest')
 xlabel('False Positive Rate'); ylabel('True Positive Rate');
 legend('Naive Bayes', 'Random Forest')
+
+%Performance Metrics
+
 %hold on
